@@ -4,18 +4,23 @@ resource "aws_vpc" "eks_vpc" {
   enable_dns_hostnames = true
 }
 
-resource "aws_subnet" "eks_subnet" {
+resource "aws_subnet" "eks_subnet-1" {
   vpc_id            = aws_vpc.eks_vpc.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = var.aws_region == "us-east-1" ? "us-east-1a" : "us-west-1b"
 }
 
+resource "aws_subnet" "eks_subnet-2" {
+  vpc_id            = aws_vpc.eks_vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = var.aws_region == "us-east-1" ? "us-east-1a" : "us-west-1b"
+}
 resource "aws_eks_cluster" "eks_cluster" {
   name     = "my-eks-cluster"
   role_arn = aws_iam_role.eks_role.arn
 
   vpc_config {
-    subnet_ids = [aws_subnet.eks_subnet.id]
+    subnet_ids = [aws_subnet.eks_subnet-1.id,aws_subnet.eks_subnet-2.id]
   }
 
   tags = {
